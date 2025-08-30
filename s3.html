@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Manager</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background-color: #0a192f;
+      color: #ccd6f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    h1 {
+      color: #64ffda;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .task-app {
+      background: #112240;
+      padding: 2rem;
+      border-radius: 15px;
+      width: 100%;
+      max-width: 600px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    .input-group {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    input, select {
+      padding: 0.7rem;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      flex: 1;
+      font-size: 1rem;
+    }
+
+    select {
+      flex: 0.5;
+      background: #233554;
+      color: #ccd6f6;
+    }
+
+    input {
+      background: #233554;
+      color: #ccd6f6;
+    }
+
+    .btn {
+      padding: 0.7rem 1.2rem;
+      border-radius: 8px;
+      border: 2px solid #64ffda;
+      background: transparent;
+      color: #64ffda;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    .btn:hover {
+      background: #64ffda;
+      color: #0a192f;
+      box-shadow: 0 0 10px #64ffda, 0 0 20px #64ffda;
+    }
+
+    .task-list {
+      margin-top: 1rem;
+    }
+
+    .task {
+      background: #233554;
+      padding: 0.8rem;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: 0.3s;
+    }
+
+    .task.complete span {
+      text-decoration: line-through;
+      color: #64ffda;
+    }
+
+    .task-category {
+      font-size: 0.8rem;
+      color: #64ffda;
+      margin-left: 0.5rem;
+    }
+
+    .task-actions button {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-left: 0.5rem;
+      transition: 0.3s;
+    }
+
+    .done-btn {
+      color: #64ffda;
+    }
+
+    .delete-btn {
+      color: #ff6b6b;
+    }
+
+    .task-actions button:hover {
+      transform: scale(1.2);
+    }
+  </style>
+</head>
+<body>
+  <h1>Task Manager</h1>
+  <div class="task-app">
+    <div class="input-group">
+      <input type="text" id="task-input" placeholder="Enter a new task...">
+      <select id="category">
+        <option value="Work">Work</option>
+        <option value="Personal">Personal</option>
+        <option value="Other">Other</option>
+      </select>
+      <button class="btn" onclick="addTask()">Add</button>
+    </div>
+    <div class="task-list" id="task-list"></div>
+  </div>
+
+  <script>
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+    function renderTasks() {
+      const list = document.getElementById("task-list");
+      list.innerHTML = "";
+
+      tasks.forEach((task, index) => {
+        const div = document.createElement("div");
+        div.classList.add("task");
+        if (task.complete) div.classList.add("complete");
+
+        div.innerHTML = `
+          <span>${task.text} <span class="task-category">[${task.category}]</span></span>
+          <div class="task-actions">
+            <button class="done-btn" onclick="toggleTask(${index})">✔</button>
+            <button class="delete-btn" onclick="deleteTask(${index})">✖</button>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+
+    function addTask() {
+      const input = document.getElementById("task-input");
+      const category = document.getElementById("category").value;
+
+      if (input.value.trim() !== "") {
+        tasks.push({ text: input.value.trim(), category, complete: false });
+        input.value = "";
+        renderTasks();
+      }
+    }
+
+    function toggleTask(index) {
+      tasks[index].complete = !tasks[index].complete;
+      renderTasks();
+    }
+
+    function deleteTask(index) {
+      tasks.splice(index, 1);
+      renderTasks();
+    }
+
+    renderTasks();
+  </script>
+</body>
+</html>

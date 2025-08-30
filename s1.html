@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Personal Budget Tracker</title>
+  <style>
+    /* General dark theme */
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background-color: #0a192f;
+      color: #ccd6f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .app-container {
+      background: #112240;
+      padding: 2rem;
+      border-radius: 15px;
+      width: 100%;
+      max-width: 450px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    h1 {
+      text-align: center;
+      color: #64ffda;
+      margin-bottom: 1rem;
+    }
+
+    .balance {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .balance span {
+      color: #64ffda;
+      font-weight: bold;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    input, select, button {
+      padding: 0.7rem;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+    }
+
+    input, select {
+      background: #0a192f;
+      color: #ccd6f6;
+      border: 1px solid #233554;
+    }
+
+    button {
+      background: #64ffda;
+      color: #0a192f;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #00e6b8;
+      transform: scale(1.03);
+    }
+
+    .transactions {
+      max-height: 200px;
+      overflow-y: auto;
+      border-top: 1px solid #233554;
+      padding-top: 1rem;
+    }
+
+    .transaction {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      padding: 0.5rem;
+      border-radius: 6px;
+      background: #233554;
+    }
+
+    .transaction.income {
+      border-left: 4px solid #64ffda;
+    }
+
+    .transaction.expense {
+      border-left: 4px solid #ff6b6b;
+    }
+
+    .transaction span {
+      font-size: 0.95rem;
+    }
+
+    .delete-btn {
+      background: transparent;
+      border: none;
+      color: #ff6b6b;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <h1>Budget Tracker</h1>
+    <div class="balance">Balance: <span id="balance">$0</span></div>
+
+    <form id="transaction-form">
+      <input type="text" id="description" placeholder="Description" required />
+      <input type="number" id="amount" placeholder="Amount" required />
+      <select id="type">
+        <option value="income">Income</option>
+        <option value="expense">Expense</option>
+      </select>
+      <button type="submit">Add Transaction</button>
+    </form>
+
+    <div class="transactions" id="transactions"></div>
+  </div>
+
+  <script>
+    const balanceEl = document.getElementById("balance");
+    const form = document.getElementById("transaction-form");
+    const transactionsEl = document.getElementById("transactions");
+
+    let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
+
+    function updateUI() {
+      transactionsEl.innerHTML = "";
+      let balance = 0;
+
+      transactions.forEach((t, index) => {
+        const div = document.createElement("div");
+        div.classList.add("transaction", t.type);
+        div.innerHTML = `
+          <span>${t.description} - $${t.amount}</span>
+          <button class="delete-btn" onclick="deleteTransaction(${index})">×</button>
+        `;
+        transactionsEl.appendChild(div);
+
+        if (t.type === "income") balance += t.amount;
+        else balance -= t.amount;
+      });
+
+      balanceEl.textContent = `$${balance}`;
+      localStorage.setItem("transactions", JSON.stringify(transactions));
+    }
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const description = document.getElementById("description").value;
+      const amount = parseFloat(document.getElementById("amount").value);
+      const type = document.getElementById("type").value;
+
+      if (description && amount) {
+        transactions.push({ description, amount, type });
+        form.reset();
+        updateUI();
+      }
+    });
+
+    function deleteTransaction(index) {
+      transactions.splice(index, 1);
+      updateUI();
+    }
+
+    updateUI();
+  </script>
+</body>
+</html>
